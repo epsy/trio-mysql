@@ -1,8 +1,19 @@
 #!/usr/bin/env python
 import io
+import ast
+import os.path
 from setuptools import setup, find_packages
 
-version_tuple = __import__('trio_mysql').VERSION
+def get_version_tuple():
+    init_py = os.path.join(os.path.dirname(__file__), 'trio_mysql', '__init__.py')
+    with open(init_py) as f:
+        for line in f:
+            before, sep, version = line.rpartition('VERSION = ')
+            if sep and not before:
+                return ast.literal_eval(version)
+        else:
+            raise ValueError('Version not found')
+version_tuple = get_version_tuple()
 
 if version_tuple[3] is not None:
     version = "%d.%d.%d_%s" % version_tuple
